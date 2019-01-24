@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="news"
+            type="news.agoda.com.sample.api.model.NewsEntity" />
+
+        <variable
+            name="itemClickListener"
+            type="android.view.View.OnClickListener" />
+
+    </data>
+
+    <LinearLayout xmlns:fresco="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_small"
+        android:onClick="@{itemClickListener}"
+        android:orientation="horizontal">
+
+        <com.facebook.drawee.view.SimpleDraweeView
+            android:id="@+id/news_item_image"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            fresco:placeholderImage="@drawable/place_holder"
+            fresco:placeholderImageScaleType="centerCrop" />
+
+        <TextView
+            android:id="@+id/news_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            android:paddingLeft="10dp"
+            android:paddingEnd="10dp"
+            android:paddingRight="10dp"
+            android:text="@{news.title}" />
+
+    </LinearLayout>
+
+</layout>
