@@ -26,21 +26,20 @@
             android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="10dp"
-            android:paddingTop="10dp"
-            android:paddingEnd="10dp"
-            android:paddingBottom="10dp"
-            android:textColor="#000000"
-            android:textSize="18sp"
+            android:padding="@dimen/padding_10"
             android:text="@{title}"
+            android:textColor="#000000"
+            android:textSize="@dimen/text_18"
             android:textStyle="bold" />
 
         <com.facebook.drawee.view.SimpleDraweeView
             android:id="@+id/news_image"
-            android:layout_width="210dp"
-            android:layout_height="140dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:paddingBottom="10dp"
+            android:minWidth="@dimen/detail_img_width"
+            android:minHeight="@dimen/detail_img_heigth"
+            android:paddingBottom="@dimen/padding_10"
             fresco:placeholderImage="@drawable/place_holder"
             fresco:placeholderImageScaleType="centerCrop" />
 
@@ -48,19 +47,20 @@
             android:id="@+id/summary_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
-            android:text="@{summary}"
-            android:paddingBottom="10dp" />
+            android:paddingStart="@dimen/padding_10"
+            android:paddingEnd="@dimen/padding_10"
+            android:paddingBottom="@dimen/padding_10"
+            android:text="@{summary}" />
 
 
         <Button
             android:id="@+id/full_story_link"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_10"
+            android:layout_marginEnd="@dimen/margin_10"
             android:onClick="@{storyClick}"
+            android:padding="@dimen/margin_10"
             android:text="@string/full_story" />
 
     </LinearLayout>

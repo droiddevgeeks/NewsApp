@@ -17,14 +17,16 @@
     <LinearLayout xmlns:fresco="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_small"
+        android:layout_margin="@dimen/margin_10"
         android:onClick="@{itemClickListener}"
         android:orientation="horizontal">
 
         <com.facebook.drawee.view.SimpleDraweeView
             android:id="@+id/news_item_image"
-            android:layout_width="75dp"
-            android:layout_height="75dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="@dimen/list_img_size"
+            android:minHeight="@dimen/list_img_size"
             fresco:placeholderImage="@drawable/place_holder"
             fresco:placeholderImageScaleType="centerCrop" />
 
@@ -32,10 +34,7 @@
             android:id="@+id/news_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingStart="10dp"
-            android:paddingLeft="10dp"
-            android:paddingEnd="10dp"
-            android:paddingRight="10dp"
+            android:padding="@dimen/padding_10"
             android:text="@{news.title}" />
 
     </LinearLayout>
