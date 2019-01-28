@@ -1,7 +1,6 @@
 package news.agoda.com.sample.ui;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -18,19 +17,24 @@ import news.agoda.com.sample.R;
 import news.agoda.com.sample.api.model.MediaEntity;
 import news.agoda.com.sample.api.model.NewsEntity;
 import news.agoda.com.sample.databinding.ListItemNewsBinding;
-import news.agoda.com.sample.util.AppConstants;
+import news.agoda.com.sample.ui.callback.IItemClick;
 
 public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
-
-
     private List<NewsEntity> newsList;
-    private Context context;
     private LayoutInflater layoutInflater;
+    private IItemClick listener;
 
     public NewsAdapter(Context context, List<NewsEntity> newsList) {
         this.newsList = newsList;
-        this.context = context;
         layoutInflater = LayoutInflater.from(context);
+    }
+
+    public void addListener(IItemClick itemClick) {
+        this.listener = itemClick;
+    }
+
+    public void removeListener() {
+        listener = null;
     }
 
     public void addNewsList(List<NewsEntity> newsList) {
@@ -49,7 +53,6 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
-
         NewsEntity newsEntity = newsList.get(i);
         viewHolder.binding.setNews(newsEntity);
         List<MediaEntity> mediaEntityList = newsEntity.getMediaEntityList();
@@ -62,16 +65,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
         } else {
             viewHolder.binding.newsItemImage.setImageResource(R.mipmap.ic_launcher);
         }
-
-        viewHolder.binding.setItemClickListener(click -> {
-            Intent intent = new Intent(context, DetailViewActivity.class);
-            intent.putExtra(AppConstants.TITLE, newsEntity.getTitle());
-            intent.putExtra(AppConstants.URL, newsEntity.getArticleUrl());
-            intent.putExtra(AppConstants.SUMMARY, newsEntity.getSummary());
-            if (!mediaEntityList.isEmpty())
-                intent.putExtra(AppConstants.IMAGEURL, mediaEntityList.get(0).getUrl());
-            context.startActivity(intent);
-        });
+        viewHolder.binding.setItemClickListener(click -> listener.onItemClick(viewHolder.getAdapterPosition()));
     }
 
     @Override
@@ -80,7 +74,6 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
     }
 
     static final class ViewHolder extends RecyclerView.ViewHolder {
-
         private final ListItemNewsBinding binding;
 
         public ViewHolder(ListItemNewsBinding binding) {
@@ -88,6 +81,5 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
             this.binding = binding;
         }
     }
-
 }
 

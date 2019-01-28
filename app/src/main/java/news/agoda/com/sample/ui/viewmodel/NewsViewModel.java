@@ -15,8 +15,6 @@ public class NewsViewModel extends ViewModel {
 
     private CompositeDisposable disposable;
     private final NewsApiClient apiClient;
-
-
     private final MutableLiveData<NewsList> newsData = new MutableLiveData<>();
     private final MutableLiveData<Throwable> apiError = new MutableLiveData<>();
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>();
@@ -59,5 +57,4 @@ public class NewsViewModel extends ViewModel {
             disposable = null;
         }
     }
-
 }

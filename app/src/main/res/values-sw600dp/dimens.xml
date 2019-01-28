@@ -1,0 +1,9 @@
+<resources>
+
+    <dimen name="activity_horizontal_margin">64dp</dimen>
+    <dimen name="padding_10">10dp</dimen>
+    <dimen name="margin_10">10dp</dimen>
+    <dimen name="detail_img_width">210dp</dimen>
+    <dimen name="detail_img_heigth">140dp</dimen>
+    <dimen name="list_img_size">75dp</dimen>
+</resources>
