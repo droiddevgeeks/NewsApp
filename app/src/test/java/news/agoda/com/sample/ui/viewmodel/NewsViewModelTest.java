@@ -1,30 +1,30 @@
 package news.agoda.com.sample.ui.viewmodel;
 
 import android.arch.core.executor.testing.InstantTaskExecutorRule;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.Observer;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import io.reactivex.Single;
 import news.agoda.com.sample.api.ApiEndPoint;
 import news.agoda.com.sample.api.NewsApiClient;
+import news.agoda.com.sample.api.RxSingleSchedulers;
 import news.agoda.com.sample.api.model.NewsList;
 
-import static io.reactivex.Single.never;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(JUnit4.class)
 public class NewsViewModelTest {
@@ -33,44 +33,46 @@ public class NewsViewModelTest {
 
     @Mock
     ApiEndPoint apiEndPoint;
-    private NewsApiClient apiClient;
+    @Mock
+    NewsApiClient apiClient;
     private NewsViewModel viewModel;
-
-    private NewsList newsList = Mockito.mock(NewsList.class);
+    @Mock
+    Observer<NewsListViewState> observer;
+    @Mock
+    LifecycleOwner lifecycleOwner;
+    Lifecycle lifecycle;
 
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        apiClient = new NewsApiClient(apiEndPoint);
-        viewModel = new NewsViewModel(apiClient);
-
+        lifecycle = new LifecycleRegistry(lifecycleOwner);
+        viewModel = new NewsViewModel(apiClient, RxSingleSchedulers.TEST_SCHEDULER);
+        viewModel.getNewsListState().observeForever(observer);
     }
 
     @Test
     public void testNull() {
-        assertThat(viewModel.getNewsData(), notNullValue());
-        Observer observer = Mockito.mock(Observer.class);
-        Mockito.verify(observer, Mockito.never()).onChanged(Mockito.any());
-
+        when(apiClient.fetchNews()).thenReturn(null);
+        assertNotNull(viewModel.getNewsListState());
+        assertTrue(viewModel.getNewsListState().hasObservers());
     }
 
     @Test
     public void testApiFetchDataSuccess() {
         // Mock API response
-        LiveData<NewsList> newsListLiveData = new MutableLiveData<>();
-        Observer observer = Mockito.mock(Observer.class);
-        Mockito.when(apiClient.fetchNews()).thenReturn(newsListLiveData);
-        viewModel.getNewsData().observeForever(observer);
+        when(apiClient.fetchNews()).thenReturn(Single.just(new NewsList()));
         viewModel.fetchNews();
-        Mockito.verify(observer, Mockito.never()).onChanged(Mockito.any());
+        verify(observer).onChanged(NewsListViewState.LOADING_STATE);
+        verify(observer).onChanged(NewsListViewState.SUCCESS_STATE);
     }
 
     @Test
     public void testApiFetchDataError() {
-        Mockito.when(apiClient.fetchNews()).thenReturn(Single.error(new Throwable("Api error")));
+        when(apiClient.fetchNews()).thenReturn(Single.error(new Throwable("Api error")));
         viewModel.fetchNews();
-        Assert.assertEquals("Api error", apiClient.fetchNews());
+        verify(observer).onChanged(NewsListViewState.LOADING_STATE);
+        verify(observer).onChanged(NewsListViewState.ERROR_STATE);
     }
 
     @After

@@ -14,5 +14,14 @@ public interface RxSingleSchedulers {
         }
     };
 
+    RxSingleSchedulers TEST_SCHEDULER = new RxSingleSchedulers() {
+        @Override
+        public <T> SingleTransformer<T, T> applySchedulers() {
+            return single -> single
+                    .subscribeOn(Schedulers.trampoline())
+                    .observeOn(Schedulers.trampoline());
+        }
+    };
+
     <T> SingleTransformer<T, T> applySchedulers();
 }

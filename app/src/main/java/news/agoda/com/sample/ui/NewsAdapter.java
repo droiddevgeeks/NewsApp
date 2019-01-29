@@ -22,7 +22,7 @@ import news.agoda.com.sample.ui.callback.IItemClick;
 public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
     private List<NewsEntity> newsList;
     private LayoutInflater layoutInflater;
-    private IItemClick listener;
+    private IItemClick<NewsEntity> listener;
 
     public NewsAdapter(Context context, List<NewsEntity> newsList) {
         this.newsList = newsList;
@@ -53,7 +53,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
-        NewsEntity newsEntity = newsList.get(i);
+        final NewsEntity newsEntity = newsList.get(i);
         viewHolder.binding.setNews(newsEntity);
         List<MediaEntity> mediaEntityList = newsEntity.getMediaEntityList();
         if (!mediaEntityList.isEmpty()) {
@@ -65,7 +65,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
         } else {
             viewHolder.binding.newsItemImage.setImageResource(R.mipmap.ic_launcher);
         }
-        viewHolder.binding.setItemClickListener(click -> listener.onItemClick(viewHolder.getAdapterPosition()));
+        viewHolder.binding.setItemClickListener(click -> listener.onItemClick(newsEntity));
     }
 
     @Override

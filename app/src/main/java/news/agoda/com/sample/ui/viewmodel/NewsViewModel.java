@@ -1,6 +1,5 @@
 package news.agoda.com.sample.ui.viewmodel;
 
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 
@@ -15,39 +14,41 @@ public class NewsViewModel extends ViewModel {
 
     private CompositeDisposable disposable;
     private final NewsApiClient apiClient;
-    private final MutableLiveData<NewsList> newsData = new MutableLiveData<>();
-    private final MutableLiveData<Throwable> apiError = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> loading = new MutableLiveData<>();
+    private final RxSingleSchedulers rxSingleSchedulers;
+    private final MutableLiveData<NewsListViewState> newsListState = new MutableLiveData<>();
+
+    public MutableLiveData<NewsListViewState> getNewsListState() {
+        return newsListState;
+    }
 
     @Inject
-    public NewsViewModel(NewsApiClient apiClient) {
+    public NewsViewModel(NewsApiClient apiClient, RxSingleSchedulers rxSingleSchedulers) {
         this.apiClient = apiClient;
+        this.rxSingleSchedulers = rxSingleSchedulers;
         disposable = new CompositeDisposable();
     }
 
-    public LiveData<NewsList> getNewsData() {
-        return newsData;
-    }
-
-    public LiveData<Boolean> getLoading() {
-        return loading;
-    }
-
-    public LiveData<Throwable> getApiError() {
-        return apiError;
-    }
-
     public void fetchNews() {
-        loading.postValue(true);
         disposable.add(apiClient.fetchNews()
-                .doOnEvent((used, not) -> loading.postValue(false))
-                .compose(RxSingleSchedulers.DEFAULT.applySchedulers())
-                .subscribe(
-                        newsData::postValue,
-                        apiError::postValue
-                ));
+                .doOnEvent((newsList, throwable) -> onLoading())
+                .compose(rxSingleSchedulers.applySchedulers())
+                .subscribe(this::onSuccess,
+                        this::onError));
     }
 
+    private void onSuccess(NewsList newsList) {
+        NewsListViewState.SUCCESS_STATE.setData(newsList);
+        newsListState.postValue(NewsListViewState.SUCCESS_STATE);
+    }
+
+    private void onError(Throwable error) {
+        NewsListViewState.ERROR_STATE.setError(error);
+        newsListState.postValue(NewsListViewState.ERROR_STATE);
+    }
+
+    private void onLoading() {
+        newsListState.postValue(NewsListViewState.LOADING_STATE);
+    }
 
     @Override
     protected void onCleared() {

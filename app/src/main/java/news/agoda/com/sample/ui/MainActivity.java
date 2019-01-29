@@ -13,14 +13,14 @@ import javax.inject.Inject;
 import news.agoda.com.sample.R;
 import news.agoda.com.sample.api.NewsViewModelFactory;
 import news.agoda.com.sample.api.model.NewsEntity;
+import news.agoda.com.sample.api.model.NewsList;
 import news.agoda.com.sample.base.BaseActivity;
 import news.agoda.com.sample.databinding.ActivityMainBinding;
 import news.agoda.com.sample.ui.callback.IItemClick;
 import news.agoda.com.sample.ui.viewmodel.NewsViewModel;
 import news.agoda.com.sample.util.AppConstants;
-import news.agoda.com.sample.util.Utilities;
 
-public class MainActivity extends BaseActivity<ActivityMainBinding> implements IItemClick {
+public class MainActivity extends BaseActivity<ActivityMainBinding> implements IItemClick<NewsEntity> {
     private NewsAdapter newsAdapter;
     private NewsViewModel newsViewModel;
 
@@ -33,20 +33,12 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements I
         Fresco.initialize(this);
         newsViewModel = ViewModelProviders.of(this, newsViewModelFactory).get(NewsViewModel.class);
         initNewsDataAdapter();
-        loadNewsData();
         observeDataChange();
+        newsViewModel.fetchNews();
     }
 
-    private void loadNewsData() {
-        if (newsViewModel.getNewsData().getValue() != null) {
-            newsAdapter.addNewsList(newsViewModel.getNewsData().getValue().getResults());
-        } else {
-            if (Utilities.isNetworkConnected(this)) {
-                newsViewModel.fetchNews();
-            } else {
-                showToast(getString(R.string.internet_error));
-            }
-        }
+    private void loadNewsData(NewsList data) {
+        newsAdapter.addNewsList(data.getResults());
     }
 
     @Override
@@ -62,24 +54,24 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements I
     }
 
     private void observeDataChange() {
-        newsViewModel.getApiError().observe(this, error -> {
-            showToast(getString(R.string.some_error));
-        });
-        newsViewModel.getLoading().observe(this, isLoading -> {
-            if (isLoading) {
-                binding.setShowLoading(true);
-            } else {
-                binding.setShowLoading(false);
+        newsViewModel.getNewsListState().observe(this, newsListViewState -> {
+            switch (newsListViewState.getCurrentState()) {
+                case 0:
+                    binding.setShowLoading(true);
+                    break;
+                case 1:
+                    binding.setShowLoading(false);
+                    loadNewsData(newsListViewState.getData());
+                    break;
+                case -1: // show error
+                    binding.setShowLoading(false);
+                    break;
             }
-        });
-        newsViewModel.getNewsData().observe(this, newsData -> {
-            newsAdapter.addNewsList(newsData.getResults());
         });
     }
 
     @Override
-    public void onItemClick(int position) {
-        NewsEntity newsEntity = newsViewModel.getNewsData().getValue().getResults().get(position);
+    public void onItemClick(NewsEntity newsEntity) {
         Bundle bundle = new Bundle();
         bundle.putString(AppConstants.TITLE, newsEntity.getTitle());
         bundle.putString(AppConstants.URL, newsEntity.getArticleUrl());
